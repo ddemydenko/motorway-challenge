@@ -25,7 +25,6 @@ describe('Test', () => {
     assert(Object.keys(result).length === 6);
     assert(result['Visitor #0'].count === 1);
     assert(result['Visitor #1'].count === 2);
-    console.log(result);
   });
 
   it('should ignore weekends visits', async () => {
@@ -62,7 +61,6 @@ describe('Test', () => {
     assert(Object.keys(result).length === 6);
     assert(result['Visitor #0'].count === 1);
     assert(result['Visitor #1'].count === 2);
-    console.log(result);
     sinon.assert.calledOnce(makeRequest);
   });
 
@@ -72,8 +70,10 @@ describe('Test', () => {
     makeRequest.onCall(2).resolves({ total: 31, data: mockData.slice(30, 31) });
     getToken.returns('5f0147ece8768eb');
     const result = await main();
-    // assert(Object.keys(result).length === 14);
-    console.log(result);
+    assert(Object.keys(result).includes('Visitor #113') === false);
+    assert(result['Visitor #0'].count === 1);
+    assert(result['Visitor #1'].count === 2);
+    assert(Object.keys(result).length === 13);
     sinon.assert.calledThrice(makeRequest);
     sinon.assert.calledWith(spyPromise, [Promise.resolve(), Promise.resolve()]);
   });
@@ -89,7 +89,6 @@ describe('Test', () => {
     assert(result['Visitor #20'].count === 1);
     assert(result['Visitor #15'].count === 4);
     assert(Object.keys(result).length === 13);
-    console.log(result);
     sinon.assert.calledThrice(makeRequest);
     sinon.assert.calledWith(spyPromise, [Promise.resolve(), Promise.resolve()]);
   });

@@ -12,7 +12,6 @@ const WEEKEND_DAYS = [0, 6];
 
 async function main() {
   const token = await getToken(ROUTES.LOGIN);
-  console.log(token);
   return await getVisits(token);
 }
 
@@ -26,16 +25,16 @@ function calculateVisitsFactory(allVisits) {
     visits
       .filter((item) => !isWeekend(item.date) && !isToday(item.date))
       .reduce((acc, item) => {
-      if (uniqueIds.includes(item.id)) return acc;
-      uniqueIds.push(item.id);
+        if (uniqueIds.includes(item.id)) return acc;
+        uniqueIds.push(item.id);
 
-      if (acc[item.name]) {
+        if (acc[item.name]) {
           acc[item.name].count++;
-      } else {
-        acc[item.name] = { count: 1 };
-      }
-      return acc;
-    }, allVisits);
+        } else {
+          acc[item.name] = { count: 1 };
+        }
+        return acc;
+      }, allVisits);
   };
 }
 
