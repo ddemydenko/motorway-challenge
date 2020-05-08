@@ -23,16 +23,14 @@ function calculateVisitsFactory(allVisits) {
   //avoid duplication when data comes during the requests are performing
   const uniqueIds = [];
   return (visits) => {
-    visits.reduce((acc, item) => {
-      if (uniqueIds.includes(item.id)) {
-        return acc;
-      }
+    visits
+      .filter((item) => !isWeekend(item.date) && !isToday(item.date))
+      .reduce((acc, item) => {
+      if (uniqueIds.includes(item.id)) return acc;
       uniqueIds.push(item.id);
 
       if (acc[item.name]) {
-        if (!isWeekend(item.date) && !isToday(item.date)) {
           acc[item.name].count++;
-        }
       } else {
         acc[item.name] = { count: 1 };
       }

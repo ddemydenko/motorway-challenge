@@ -22,15 +22,47 @@ describe('Test', () => {
     makeRequest.onCall(1).resolves({ total: 16, data: mockData.slice(15, 16) });
     getToken.returns('5f0147ece8768eb');
     const result = await main();
-    assert(Object.keys(result).length === 7);
+    assert(Object.keys(result).length === 6);
+    assert(result['Visitor #0'].count === 1);
+    assert(result['Visitor #1'].count === 2);
+    console.log(result);
+  });
+
+  it('should ignore weekends visits', async () => {
+    makeRequest.onCall(0).resolves({ total: 15, data: mockData.slice(0, 15) });
+    getToken.returns('5f0147ece8768eb');
+    const result = await main();
+    assert(Object.keys(result).includes('Visitor #13') === false);
+    assert(Object.keys(result).length === 6);
+    assert(result['Visitor #0'].count === 1);
+    assert(result['Visitor #1'].count === 2);
+  });
+
+  it('should ignore today visits', async () => {
+    const data = mockData.slice(0, 14);
+    data.push({
+      'id': 88,
+      'name': 'Visitor #113',
+      'date': new Date().toISOString()
+    },);
+    makeRequest.onCall(0).resolves({ total: data.length, data: data });
+    getToken.returns('5f0147ece8768eb');
+    const result = await main();
+    assert(Object.keys(result).includes('Visitor #113') === false);
+    assert(Object.keys(result).length === 6);
+    assert(result['Visitor #0'].count === 1);
+    assert(result['Visitor #1'].count === 2);
   });
 
   it('should make only one request when total less than page size', async () => {
     makeRequest.onCall(0).resolves({ total: 14, data: mockData.slice(0, 14) });
-      makeRequest.onCall(1).resolves({ total: 16, data: mockData.slice(15, 16) });
+    makeRequest.onCall(1).resolves({ total: 16, data: mockData.slice(15, 16) });
     getToken.returns('5f0147ece8768eb');
     const result = await main();
-    assert(Object.keys(result).length === 7);
+    assert(Object.keys(result).length === 6);
+    assert(result['Visitor #0'].count === 1);
+    assert(result['Visitor #1'].count === 2);
+    console.log(result);
     sinon.assert.calledOnce(makeRequest);
   });
 
@@ -40,11 +72,11 @@ describe('Test', () => {
     makeRequest.onCall(2).resolves({ total: 31, data: mockData.slice(30, 31) });
     getToken.returns('5f0147ece8768eb');
     const result = await main();
-    assert(Object.keys(result).length === 14);
+    // assert(Object.keys(result).length === 14);
+    console.log(result);
     sinon.assert.calledThrice(makeRequest);
     sinon.assert.calledWith(spyPromise, [Promise.resolve(), Promise.resolve()]);
   });
-
 
   it('should handle request when date incomes during the requests', async () => {
     makeRequest.onCall(0).resolves({ total: 31, data: mockData.slice(0, 15) });
@@ -56,9 +88,10 @@ describe('Test', () => {
     assert(result['Visitor #0'].count === 1);
     assert(result['Visitor #20'].count === 1);
     assert(result['Visitor #15'].count === 4);
-    assert(Object.keys(result).length === 14);
+    assert(Object.keys(result).length === 13);
+    console.log(result);
     sinon.assert.calledThrice(makeRequest);
-    sinon.assert.calledWith(spyPromise, [Promise.resolve(), Promise.resolve()])
+    sinon.assert.calledWith(spyPromise, [Promise.resolve(), Promise.resolve()]);
   });
 
   it('should retry request when promise return reject', async () => {
